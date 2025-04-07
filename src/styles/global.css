@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-color: #6339EC;
+  --secondary-color: #F1EFFD;
+  --text-primary: #1A1A1A;
+  --text-secondary: #6E6E80;
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F9F9F9;
+  --border-color: #E4E4E7;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 20px;
+}
+
+.message-human {
+  background-color: var(--bg-secondary);
+}
+
+.message-assistant {
+  background-color: var(--bg-primary);
+}
+
+.active-conversation {
+  background-color: var(--secondary-color);
+  border-left: 3px solid var(--primary-color);
+}
