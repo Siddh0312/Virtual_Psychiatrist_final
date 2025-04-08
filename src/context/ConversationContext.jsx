@@ -10,7 +10,7 @@ export const ConversationProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Load conversations from Azure
+  // Load conversations from Azure or sample data
   useEffect(() => {
     const loadConversations = async () => {
       try {
@@ -25,9 +25,14 @@ export const ConversationProvider = ({ children }) => {
         
         setLoading(false);
       } catch (err) {
-        setError('Failed to load conversations');
-        setLoading(false);
         console.error('Error loading conversations:', err);
+        // Initialize with sample data if there's an error
+        const sampleData = getSampleConversations();
+        setConversations(sampleData);
+        if (sampleData.length > 0) {
+          setCurrentConversation(sampleData[0]);
+        }
+        setLoading(false);
       }
     };
     
@@ -45,8 +50,8 @@ export const ConversationProvider = ({ children }) => {
     };
     
     try {
-      await saveConversation(newConversation);
-      setConversations([newConversation, ...conversations]);
+      // For now, just update the local state
+      setConversations(prev => [newConversation, ...prev]);
       setCurrentConversation(newConversation);
       return newConversation;
     } catch (err) {
@@ -71,12 +76,9 @@ export const ConversationProvider = ({ children }) => {
     };
     
     try {
-      await saveConversation(updatedConversation);
-      
-      setConversations(
-        conversations.map(c => 
-          c.id === conversationId ? updatedConversation : c
-        )
+      // For now, just update the local state
+      setConversations(prev =>
+        prev.map(c => c.id === conversationId ? updatedConversation : c)
       );
       
       if (currentConversation && currentConversation.id === conversationId) {
@@ -93,7 +95,6 @@ export const ConversationProvider = ({ children }) => {
 
   // Extract title from first message
   const extractTitle = (content) => {
-    // Limit title to first 30 characters of first message
     return content.length > 30 ? content.substring(0, 30) + '...' : content;
   };
 
@@ -108,8 +109,6 @@ export const ConversationProvider = ({ children }) => {
   // Delete a conversation
   const deleteConversation = async (conversationId) => {
     try {
-      // Implementation for deleting from Azure would go here
-      
       const updatedConversations = conversations.filter(c => c.id !== conversationId);
       setConversations(updatedConversations);
       
@@ -139,3 +138,29 @@ export const ConversationProvider = ({ children }) => {
     </ConversationContext.Provider>
   );
 };
+
+// Sample data for development/testing
+function getSampleConversations() {
+  return [
+    {
+      id: '1',
+      title: 'Discussing anxiety management techniques',
+      createdAt: '2024-04-01T10:30:00Z',
+      updatedAt: '2024-04-01T11:15:00Z',
+      messages: [
+        {
+          id: '1-1',
+          role: 'user',
+          content: 'I\'ve been feeling really anxious lately, especially at work. Do you have any techniques that might help?',
+          timestamp: '2024-04-01T10:30:00Z'
+        },
+        {
+          id: '1-2',
+          role: 'assistant',
+          content: 'I understand how difficult anxiety can be, especially in a work environment. There are several techniques that might help you manage these feelings. Deep breathing exercises, progressive muscle relaxation, and mindfulness meditation can be effective in the moment. Would you like me to explain any of these in more detail?',
+          timestamp: '2024-04-01T10:32:00Z'
+        }
+      ]
+    }
+  ];
+}

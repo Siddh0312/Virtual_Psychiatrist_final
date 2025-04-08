@@ -4,16 +4,25 @@ import { BlobServiceClient } from '@azure/storage-blob';
 const connectionString = process.env.REACT_APP_AZURE_STORAGE_CONNECTION_STRING;
 const containerName = 'psychiatrist-conversations';
 
-// Initialize the BlobServiceClient
-const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
-const containerClient = blobServiceClient.getContainerClient(containerName);
+// Initialize the BlobServiceClient only if connection string is available
+let blobServiceClient = null;
+let containerClient = null;
+
+if (connectionString) {
+  try {
+    blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+    containerClient = blobServiceClient.getContainerClient(containerName);
+  } catch (error) {
+    console.error('Error initializing Azure clients:', error);
+  }
+}
 
 // Fetch all conversations
 export const fetchConversations = async () => {
   try {
     // For development/testing - return sample data if Azure connection isn't set up
-    if (!connectionString) {
-      console.warn('Azure connection string not found, using sample data');
+    if (!connectionString || !containerClient) {
+      console.warn('Azure connection not available, using sample data');
       return getSampleConversations();
     }
 
@@ -41,9 +50,9 @@ export const fetchConversations = async () => {
 // Save a conversation
 export const saveConversation = async (conversation) => {
   try {
-    // For development/testing - log data if Azure connection isn't set up
-    if (!connectionString) {
-      console.warn('Azure connection string not found, logging conversation data:', conversation);
+    // For development/testing - just return the conversation if Azure connection isn't set up
+    if (!connectionString || !containerClient) {
+      console.warn('Azure connection not available, skipping save');
       return conversation;
     }
 
@@ -56,7 +65,8 @@ export const saveConversation = async (conversation) => {
     return conversation;
   } catch (error) {
     console.error('Error saving conversation to Azure:', error);
-    throw error;
+    // Return the conversation even if save fails
+    return conversation;
   }
 };
 
@@ -80,52 +90,20 @@ function getSampleConversations() {
     {
       id: '1',
       title: 'Discussing anxiety management techniques',
-      createdAt: '2025-04-01T10:30:00Z',
-      updatedAt: '2025-04-01T11:15:00Z',
+      createdAt: '2024-04-01T10:30:00Z',
+      updatedAt: '2024-04-01T11:15:00Z',
       messages: [
         {
           id: '1-1',
           role: 'user',
           content: 'I\'ve been feeling really anxious lately, especially at work. Do you have any techniques that might help?',
-          timestamp: '2025-04-01T10:30:00Z'
+          timestamp: '2024-04-01T10:30:00Z'
         },
         {
           id: '1-2',
           role: 'assistant',
           content: 'I understand how difficult anxiety can be, especially in a work environment. There are several techniques that might help you manage these feelings. Deep breathing exercises, progressive muscle relaxation, and mindfulness meditation can be effective in the moment. Would you like me to explain any of these in more detail?',
-          timestamp: '2025-04-01T10:32:00Z'
-        },
-        {
-          id: '1-3',
-          role: 'user',
-          content: 'Yes, could you tell me more about mindfulness meditation? I\'ve heard about it but never tried it.',
-          timestamp: '2025-04-01T10:35:00Z'
-        },
-        {
-          id: '1-4',
-          role: 'assistant',
-          content: 'Mindfulness meditation is about being fully present and engaged in the current moment, aware of your thoughts and feelings without judgment. Here\'s a simple practice to start with:\n\n1. Find a quiet place to sit comfortably\n2. Focus your attention on your breathing\n3. Notice the sensation of each inhale and exhale\n4. When your mind wanders (which is normal), gently bring your focus back to your breathing\n5. Start with just 5 minutes daily and gradually increase\n\nWould you like to try a brief guided session now?',
-          timestamp: '2025-04-01T10:40:00Z'
-        }
-      ]
-    },
-    {
-      id: '2',
-      title: 'Sleep improvement strategies',
-      createdAt: '2025-03-28T20:15:00Z',
-      updatedAt: '2025-03-28T20:45:00Z',
-      messages: [
-        {
-          id: '2-1',
-          role: 'user',
-          content: 'I\'m having trouble sleeping lately. I toss and turn for hours before falling asleep. Any advice?',
-          timestamp: '2025-03-28T20:15:00Z'
-        },
-        {
-          id: '2-2',
-          role: 'assistant',
-          content: 'I\'m sorry to hear you\'re struggling with sleep. Insomnia can be really frustrating. There are several evidence-based strategies that might help improve your sleep quality. Would you like to tell me more about your current sleep routine? This could help me provide more tailored suggestions.',
-          timestamp: '2025-03-28T20:17:00Z'
+          timestamp: '2024-04-01T10:32:00Z'
         }
       ]
     }
