@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FiSend } from 'react-icons/fi';
+import ChatMessages from '../ui/ChatMessages'; // ✅ import the new component
 import Message from '../ui/Message';
 import { useConversation } from '../../hooks/useConversation';
 
@@ -11,23 +12,19 @@ const ChatContainer = () => {
   
   const { currentConversation, loading, sendMessage } = useConversation();
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [currentConversation?.messages]);
 
-  // Focus input on mount
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     if (!message.trim() || isSubmitting) return;
-    
+
     setIsSubmitting(true);
-    
     try {
       await sendMessage(message.trim());
       setMessage('');
@@ -66,18 +63,11 @@ const ChatContainer = () => {
             timestamp={welcomeMessage.timestamp}
           />
         ) : (
-          currentConversation.messages.map((msg) => (
-            <Message
-              key={msg.id}
-              role={msg.role}
-              content={msg.content}
-              timestamp={msg.timestamp}
-            />
-          ))
+          <ChatMessages messages={currentConversation.messages} /> // ✅ updated here
         )}
         <div ref={messagesEndRef} />
       </div>
-      
+
       <div className="border-t border-gray-200 p-4 bg-white shadow-sm">
         <form onSubmit={handleSubmit} className="flex items-center space-x-3">
           <input

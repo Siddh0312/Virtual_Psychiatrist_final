@@ -29,6 +29,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+
 /* Layout */
 .flex {
   display: flex;
